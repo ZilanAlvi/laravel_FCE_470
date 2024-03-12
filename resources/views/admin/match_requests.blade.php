@@ -151,6 +151,43 @@
     </tbody>
   </table>
 </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Club</th>
+        <th>Team 2</th>
+        <th>Match Date and Time</th>
+        <th>Stadium</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach ($matchRequests as $request)
+        <tr>
+          <td>{{ $request->club->club_name }}</td>
+          <td>{{ $request->team2->club_name }}</td>
+          <td>{{ $request->match_datetime }}</td>
+          <td>{{ $request->stadium }}</td>
+          <td>{{ ucfirst($request->status) }}</td>
+          <td>
+            @if ($request->status === 'pending')
+              <form action="{{ route('admin.approve_match_request', $request->id) }}" method="POST" class="d-inline-block">
+                @csrf
+                <button type="submit" class="btn btn-success">Approve</button>
+              </form>
+              <form action="{{ route('admin.decline_match_request', $request->id) }}" method="POST" class="d-inline-block">
+                @csrf
+                <button type="submit" class="btn btn-danger">Decline</button>
+              </form>
+            @endif
+          </td>
+        </tr>
+      @endforeach
+    </tbody>
+  </table>
+</div>
+        
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <script>
