@@ -17,6 +17,7 @@ class Matches extends Model
     public function team2()
     {
         return $this->belongsTo(Club::class, 'team2_id');
+        
     }
 
     public function tickets()
