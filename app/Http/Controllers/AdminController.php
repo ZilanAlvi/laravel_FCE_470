@@ -103,42 +103,46 @@ class AdminController extends Controller
     }
 
 
-    public function showPendingBids()
+    public function track_performance_page()
     {
-        $pendingBids = ClubBid::with(['club.clubBids', 'player.clubBids'])
-        ->where('is_accepted', false)
-        ->where('is_declined', false)
-        ->get();
-
-    return view('admin.pending_bids', ['bids' => $pendingBids]);
+        $players = Player::all();
+        return view('admin.Track_Performance', compact('players'));
     }
 
-
-    public function acceptBid($bidId)
+    public function update_performance(Request $request, $id)
     {
-        $bid = ClubBid::findOrFail($bidId);
-        $bid->is_accepted = true;
-        $bid->save();
-        $player = $bid->player->load('club');
-      //  dd($player->toArray());
-        $newClub = $bid->club;
-
-        // Retrieve the club based on the club name in the player table
-       // $club = Club::where('club_name', $player->club)->first();
-       // dd($newClub->toArray());
-        // Update player's club information
-        if ($newClub) {
-            $player->update([
-                'club_id' => $newClub->user_id,
-                'club' => $newClub->club_name,
-            ]);
+        $player = Player::find($id);
+        if ($player) {
+        if ($request->has('goals')) {
+            $player->goals = $request->goals;
         }
-        //dd($player->toArray());
-        Session::flash('message', 'Bid accepted');
-        return redirect()->back();
+        if ($request->has('assists')) {
+            $player->assists = $request->assists;
+        }
+        if ($request->has('minsplayed')) {
+            $player->minsplayed = $request->minsplayed;
+        }
+        $experience = $request->experience;
+        $goals = $request->goals;
+        $assists = $request->assists; 
+        $minutesPlayed = $request->minsplayed; 
+        $rankingValue = $experience + ($goals * 2) + ($assists * 1.5) + ($minutesPlayed / 90);
+        $player->ranking_value = $rankingValue;
+        $player->save();
 
-        //Session::flash('message', 'Bid accepted');
-        //return redirect()->back();
+        $players = Player::all();
+        $existingPlayers = $players->sortByDesc('ranking_value');
+        $rank = 1;
+        foreach ($existingPlayers as $existingPlayer) {
+            $existingPlayer->rank = $rank;
+            $existingPlayer->save(); 
+            $rank++;
+        }
+        }
+        
+
+
+        return redirect()->back()->with('message', 'Performance Updated Successfully');
     }
 
     public function generate_rating_page()
