@@ -110,7 +110,8 @@
       <button class="close" type="button" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
-    </div>
+    </div
+        
   @endif
 
   <table class="table">
