@@ -103,46 +103,42 @@ class AdminController extends Controller
     }
 
 
-    public function track_performance_page()
+    public function showPendingBids()
     {
-        $players = Player::all();
-        return view('admin.Track_Performance', compact('players'));
+        $pendingBids = ClubBid::with(['club.clubBids', 'player.clubBids'])
+        ->where('is_accepted', false)
+        ->where('is_declined', false)
+        ->get();
+
+    return view('admin.pending_bids', ['bids' => $pendingBids]);
     }
 
-    public function update_performance(Request $request, $id)
+
+    public function acceptBid($bidId)
     {
-        $player = Player::find($id);
-        if ($player) {
-        if ($request->has('goals')) {
-            $player->goals = $request->goals;
-        }
-        if ($request->has('assists')) {
-            $player->assists = $request->assists;
-        }
-        if ($request->has('minsplayed')) {
-            $player->minsplayed = $request->minsplayed;
-        }
-        $experience = $request->experience;
-        $goals = $request->goals;
-        $assists = $request->assists; 
-        $minutesPlayed = $request->minsplayed; 
-        $rankingValue = $experience + ($goals * 2) + ($assists * 1.5) + ($minutesPlayed / 90);
-        $player->ranking_value = $rankingValue;
-        $player->save();
+        $bid = ClubBid::findOrFail($bidId);
+        $bid->is_accepted = true;
+        $bid->save();
+        $player = $bid->player->load('club');
+      //  dd($player->toArray());
+        $newClub = $bid->club;
 
-        $players = Player::all();
-        $existingPlayers = $players->sortByDesc('ranking_value');
-        $rank = 1;
-        foreach ($existingPlayers as $existingPlayer) {
-            $existingPlayer->rank = $rank;
-            $existingPlayer->save(); 
-            $rank++;
+        // Retrieve the club based on the club name in the player table
+       // $club = Club::where('club_name', $player->club)->first();
+       // dd($newClub->toArray());
+        // Update player's club information
+        if ($newClub) {
+            $player->update([
+                'club_id' => $newClub->user_id,
+                'club' => $newClub->club_name,
+            ]);
         }
-        }
-        
+        //dd($player->toArray());
+        Session::flash('message', 'Bid accepted');
+        return redirect()->back();
 
-
-        return redirect()->back()->with('message', 'Performance Updated Successfully');
+        //Session::flash('message', 'Bid accepted');
+        //return redirect()->back();
     }
 
     public function generate_rating_page()
