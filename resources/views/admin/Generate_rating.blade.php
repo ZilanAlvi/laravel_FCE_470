@@ -61,3 +61,52 @@
   </style>
 </head>
 
+<body>
+  <!-- Body Wrapper -->
+  <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+
+    <!-- Sidebar Start -->
+    @include('admin.sidebar')
+    <!-- Sidebar End -->
+
+    <!-- Main wrapper -->
+    <div class="body-wrapper">
+
+      <!-- Header Start -->
+      @include('admin.header')
+      <!-- Header End -->
+
+      <div class="container-fluid">
+        <!-- START -->
+        <div class="row">
+          @foreach($players as $player)
+            <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+              <div class="card">
+                <img src="/player_images/{{ $player->pimage }}" class="card-img-top" alt="{{ $player->name }} Image">
+                <div class="card-body">
+                  <h5 class="card-title">
+                    <strong class="rank-text"><i class="fas fa-star text-warning"></i> Rank {{ $player->rank }}</strong>
+                    <span class="player-name">{{ $player->name }}</span>
+                  </h5>
+                  <p class="card-text"><strong>Club:</strong> {{ $player->club }}</p>
+                  <p class="card-text"><strong>Age:</strong> {{ $player->age }}</p>
+                  <p class="card-text"><strong>Position:</strong> {{ $player->position }}</p>
+                  <p class="card-text"><strong>Goals:</strong> {{ $player->goals }}</p>
+                  <p class="card-text"><strong>Assists:</strong> {{ $player->assists }}</p>
+                  <p class="card-text"><strong>Minutes Played:</strong> {{ $player->minsplayed }}</p>
+                </div>
+              </div>
+            </div>
+          @endforeach
+        </div>
+        <!-- END -->
+      </div>
+
+      <!-- Footer Start -->
+      @include('admin.javascript')
+      <!-- Footer End -->
+    </div>
+  </div>
+</body>
+</html>
